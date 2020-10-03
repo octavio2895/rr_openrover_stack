@@ -101,8 +101,8 @@ MIN_TOGGLE_DUR = 0.5  #
 DRIVE_INCREMENTS = rospy.get_param('~drive_increment', 20.0)
 FLIPPER_INCREMENTS = rospy.get_param('~flipper_increment', 20.0)
 DEADBAND = 0.2
-FWD_ACC_LIM = 0.2
-TRN_ACC_LIM = 0.4
+FWD_ACC_LIM = 0.025
+TRN_ACC_LIM = 0.05
 DPAD_ACTIVE = False
 
 a_button_msg = Bool()
