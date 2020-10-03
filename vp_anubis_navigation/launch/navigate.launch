@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Map server-->
+    <arg name="map_file" default="$(find vp_anubis_navigation)/maps/map.yaml"/>
+    <node pkg="map_server" type="map_server" name="map_server" args="$(arg map_file)"/>
+
+    <!--AMCL used for localization-->
+    <include file="$(find vp_anubis_navigation)/launch/vp_anubis_navigation/amcl.launch" />
+
+    <!-- navigation stack packages for compatible 2WD-->
+    <include file="$(find vp_anubis_navigation)/launch/vp_anubis_navigation/move_base/move_base_2wd.launch" />
+
+
+</launch>

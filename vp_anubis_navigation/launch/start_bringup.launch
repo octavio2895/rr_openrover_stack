@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <!--node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization">
+        <remap from="odometry/filtered" to="odom"/>
+        <rosparam file="$(find vp_anubis_navigation)/param/ekf/robot_localization.yaml" command="load" />
+
+    </node-->
+    <include file="$(find vp_anubis_navigation)/launch/urdf_launch/2wd_utp.launch" />
+
+     <!-- t265 camera-->
+    <include file="$(find vp_anubis_navigation)/launch/vp_anubis_navigation/realsense2/rs_t265.launch" />
+
+    <!---rplidar A1-->
+    <include file="$(find vp_anubis_navigation)/launch/vp_anubis_navigation/lidar/rplidar.launch" />
+
+
+</launch>
