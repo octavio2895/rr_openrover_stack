@@ -119,8 +119,9 @@ unsigned char OdomControl::run(bool e_stop_on, bool control_on, double commanded
 
   velocity_measured_ = measured_vel;
 
-  velocity_filtered_ = filter(measured_vel, dt);
+ // velocity_filtered_ = filter(measured_vel, dt);
 
+  velocity_filtered_ = measured_vel;
   //If rover is E-Stopped, respond with NEUTRAL comman
   if (e_stop_on)
   {
@@ -299,7 +300,8 @@ double OdomControl::filter(double velocity, double dt)
   velocity_filtered_history_.insert(velocity_filtered_history_.begin(), velocity_filtered_);
   velocity_filtered_history_.pop_back();
 
-  return velocity_filtered_;
+ // return velocity_filtered_;
+  return velocity;
 }
 
 
