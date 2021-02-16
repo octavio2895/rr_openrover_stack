@@ -30,6 +30,10 @@ last_a_button = time.time()
 last_b_button = time.time()
 last_x_button = time.time()
 last_y_button = time.time()
+last_a_button_state = False
+last_b_button_state = False
+last_x_button_state = False
+last_y_button_state = False
 last_joycb_device_check = time.time()
 button_msg = String()
 
@@ -94,9 +98,13 @@ DRIVE_THROTTLE = rospy.get_param('~default_drive_throttle', 0.15)
 FLIPPER_THROTTLE = rospy.get_param('~default_flipper_throttle', 0.6)
 ADJ_THROTTLE = rospy.get_param('~adjustable_throttle', True)
 A_BUTTON_TOGGLE = rospy.get_param('~a_button_toggle', False)
+A_BUTTON_TOGGLE_ONCE = rospy.get_param('~a_button_toggle_once', True)
 B_BUTTON_TOGGLE = rospy.get_param('~b_button_toggle', False)
+B_BUTTON_TOGGLE_ONCE = rospy.get_param('~b_button_toggle_once', True)
 X_BUTTON_TOGGLE = rospy.get_param('~x_button_toggle', False)
+X_BUTTON_TOGGLE_ONCE = rospy.get_param('~x_button_toggle_once', True)
 Y_BUTTON_TOGGLE = rospy.get_param('~y_button_toggle', False)
+Y_BUTTON_TOGGLE_ONCE = rospy.get_param('~y_button_toggle_once', True)
 MIN_TOGGLE_DUR = 0.5  #
 DRIVE_INCREMENTS = rospy.get_param('~drive_increment', 20.0)
 FLIPPER_INCREMENTS = rospy.get_param('~flipper_increment', 20.0)
@@ -162,6 +170,7 @@ def joy_cb(Joy):
     global cmd
     global seq
     global last_a_button, last_b_button, last_x_button, last_y_button
+    global last_a_button_state, last_b_button_state, last_x_button_state, last_y_button_state
     global last_joycb_device_check
     global a_button_pub, a_button_msg, b_button_pub, b_button_msg
     global x_button_pub, x_button_msg, y_button_pub, y_button_msg
@@ -180,64 +189,123 @@ def joy_cb(Joy):
 
     # check for other two user-defined buttons. We only debounce them and monitor on/off status on a latched pub
     # (green/A)
-    if A_BUTTON_TOGGLE:
+    if A_BUTTON_TOGGLE_ONCE:
+        if Joy.buttons[A_BUTTON] == 1 and last_a_button_state == False:
+            if time.time() - last_a_button > MIN_TOGGLE_DUR:
+                last_a_button = time.time()
+                a_button_state = not a_button_msg.data
+                rospy.loginfo('A button toggled once: {state}'.format(state=a_button_state))
+                a_button_msg.data = a_button_state
+                a_button_pub.publish(a_button_msg)
+                last_a_button_state = True
+        elif Joy.buttons[A_BUTTON] == 0 and last_a_button_state == True:
+            last_a_button_state = False
+
+    elif A_BUTTON_TOGGLE:
         if Joy.buttons[A_BUTTON] == 1:
             if time.time() - last_a_button > MIN_TOGGLE_DUR:
                 last_a_button = time.time()
                 a_button_state = not a_button_msg.data
-                rospy.loginfo('A button toggled: {state}'.format(state=a_button_state))
+                rospy.loginfo('A button toggled continously: {state}'.format(state=a_button_state))
                 a_button_msg.data = a_button_state
+        a_button_pub.publish(a_button_msg)
+        
     else:
         if Joy.buttons[A_BUTTON] == 1:
             a_button_msg.data = True
         else:
             a_button_msg.data = False
-    a_button_pub.publish(a_button_msg)
+        a_button_pub.publish(a_button_msg)
 
     # (red/B)
-    if B_BUTTON_TOGGLE:
+    if B_BUTTON_TOGGLE_ONCE:
+        if Joy.buttons[B_BUTTON] == 1 and last_b_button_state == False:
+            if time.time() - last_b_button > MIN_TOGGLE_DUR:
+                last_b_button = time.time()
+                b_button_state = not b_button_msg.data
+                rospy.loginfo('B button toggled once: {state}'.format(state=b_button_state))
+                b_button_msg.data = b_button_state
+                b_button_pub.publish(b_button_msg)
+                last_b_button_state = True
+        
+        elif Joy.buttons[B_BUTTON] == 0 and last_b_button_state == True:
+            last_b_button_state = False
+
+
+    elif B_BUTTON_TOGGLE:
         if Joy.buttons[B_BUTTON] == 1:
             if time.time() - last_b_button > MIN_TOGGLE_DUR:
                 last_b_button = time.time()
                 b_button_state = not b_button_msg.data
-                rospy.loginfo('B button toggled: {state}'.format(state=b_button_state))
+                rospy.loginfo('B button toggled continously: {state}'.format(state=b_button_state))
                 b_button_msg.data = b_button_state
+        
+        b_button_pub.publish(b_button_msg)
+
     else:
         if Joy.buttons[B_BUTTON] == 1:
             b_button_msg.data = True
         else:
             b_button_msg.data = False
-    b_button_pub.publish(b_button_msg)
+        b_button_pub.publish(b_button_msg)
 
     # (blue/X)
-    if X_BUTTON_TOGGLE:
+    if X_BUTTON_TOGGLE_ONCE:
+        if Joy.buttons[X_BUTTON] == 1 and last_x_button_state == False:
+            if time.time() - last_x_button > MIN_TOGGLE_DUR:
+                last_x_button = time.time()
+                x_button_state = not x_button_msg.data
+                rospy.loginfo('X button toggled once: {state}'.format(state=x_button_state))
+                x_button_msg.data = x_button_state
+                x_button_pub.publish(x_button_msg)
+                last_x_button_state = True
+
+        elif Joy.buttons[X_BUTTON] == 0 and last_x_button_state == True:
+            last_x_button_state = False
+
+    elif X_BUTTON_TOGGLE:
         if Joy.buttons[X_BUTTON] == 1:
             if time.time() - last_x_button > MIN_TOGGLE_DUR:
                 last_x_button = time.time()
                 x_button_state = not x_button_msg.data
-                rospy.loginfo('X button toggled: {state}'.format(state=x_button_state))
+                rospy.loginfo('X button toggled continously: {state}'.format(state=x_button_state))
                 x_button_msg.data = x_button_state
+        x_button_pub.publish(x_button_msg)
+    
     else:
         if Joy.buttons[X_BUTTON] == 1:
             x_button_msg.data = True
         else:
             x_button_msg.data = False
-    x_button_pub.publish(x_button_msg)
+        x_button_pub.publish(x_button_msg)
 
     # (yellow/Y)
-    if Y_BUTTON_TOGGLE:
+    if Y_BUTTON_TOGGLE_ONCE:
+        if Joy.buttons[Y_BUTTON] == 1 and last_y_button_state == False:
+            if time.time() - last_y_button > MIN_TOGGLE_DUR:
+                last_y_button = time.time()
+                y_button_state = not y_button_msg.data
+                rospy.loginfo('Y button toggled once: {state}'.format(state=y_button_state))
+                y_button_msg.data = y_button_state
+                y_button_pub.publish(y_button_msg)
+                last_y_button_state = True
+        elif Joy.buttons[Y_BUTTON] == 0 and last_y_button_state == True:
+            last_y_button_state = False
+    elif Y_BUTTON_TOGGLE:
         if Joy.buttons[Y_BUTTON] == 1:
             if time.time() - last_y_button > MIN_TOGGLE_DUR:
                 last_y_button = time.time()
                 y_button_state = not y_button_msg.data
-                rospy.loginfo('Y button toggled: {state}'.format(state=y_button_state))
+                rospy.loginfo('Y button toggled continously: {state}'.format(state=y_button_state))
                 y_button_msg.data = y_button_state
+        y_button_pub.publish(y_button_msg)
+    
     else:
         if Joy.buttons[Y_BUTTON] == 1:
             y_button_msg.data = True
         else:
             y_button_msg.data = False
-    y_button_pub.publish(y_button_msg)
+        y_button_pub.publish(y_button_msg)
 
     if ADJ_THROTTLE:
         # Increase/Decrease Max Speed
@@ -294,8 +362,7 @@ def joy_cb(Joy):
         drive_cmd = 0
 
         # Turn left/right commands
-    turn_cmd = (1.1 - (drive_cmd / MAX_VEL_FWD)) * DRIVE_THROTTLE * MAX_VEL_TURN * Joy.axes[
-        R_STICK_H_AXES]  # right joystick
+    turn_cmd = (1.1 - (drive_cmd / MAX_VEL_FWD)) * DRIVE_THROTTLE * MAX_VEL_TURN * Joy.axes[L_STICK_H_AXES]  # right joystick
     if turn_cmd < TURN_DEADBAND and -TURN_DEADBAND < turn_cmd:
         turn_cmd = 0
 
