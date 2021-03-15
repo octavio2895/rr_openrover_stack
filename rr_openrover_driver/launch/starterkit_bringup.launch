@@ -13,7 +13,7 @@
         <param name="closed_loop_control_on" type="bool" value="true" />
         <!--<param name="closed_loop_control_on" type="bool" value="true" />--><!-- Requires fast_data_rate >= 60 -->
         <param name="total_weight" type="double" value="40.0"/>
-        <param name="traction_factor" value="0.610"/>
+        <param name="traction_factor" value="0.450"/>
         <param name="odom_covariance_0" value="0.01"/>
         <param name="odom_covariance_35" value="0.03"/>
 
