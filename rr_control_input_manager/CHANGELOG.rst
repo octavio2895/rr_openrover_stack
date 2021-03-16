@@ -1,6 +1,17 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package rr_control_input_manager
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2.0.1 (2020-12-14)
+------------------
+
+2.0.0 (2020-11-10)
+------------------
+* add support for ps4 controller, remove support for xbox controller.
+* add trim control
+* add estop control 
+
+1.2.0 (2020-11-05)
+------------------
 
 1.1.1 (2020-06-15)
 ------------------

@@ -43,9 +43,6 @@ OdomControl::OdomControl()
   , velocity_measured_(0)
   , velocity_filtered_(0)
 {
-  ROS_INFO("odom Kp: %f", K_P_);
-  ROS_INFO("odom Ki: %f", K_I_);
-  ROS_INFO("odom Kd: %f", K_D_);
 }
 
 OdomControl::OdomControl(bool use_control, PidGains pid_gains, int max, int min, std::ofstream* fs)
@@ -73,9 +70,6 @@ OdomControl::OdomControl(bool use_control, PidGains pid_gains, int max, int min,
   , velocity_measured_(0)
   , velocity_filtered_(0)
 {
-  ROS_INFO("odom Kp: %f", K_P_);
-  ROS_INFO("odom Ki: %f", K_I_);
-  ROS_INFO("odom Kd: %f", K_D_);
 
   if (fs_ != nullptr && fs_->is_open()) {
     *fs_ << "time,Kp,Ki,Kd,error,integral_error,differential_error,error_filtered,meas_vel,filt_vel,cmd_vel,dt,motor_cmd\n";
@@ -113,15 +107,20 @@ OdomControl::OdomControl(bool use_control, PidGains pid_gains, int max, int min)
   ROS_INFO("odom Kd: %f", K_D_);
 }
 
-unsigned char OdomControl::run(bool e_stop_on, bool control_on, double commanded_vel, double measured_vel, double dt)
+unsigned char OdomControl::run(bool e_stop_on, bool control_on, double commanded_vel, double measured_vel, double dt, int firmwareBuildNumber)
 {
   velocity_commanded_ = commanded_vel;
 
   velocity_measured_ = measured_vel;
 
- // velocity_filtered_ = filter(measured_vel, dt);
+  /*
+  Truncate the last two digits of the firmware version number,
+  which returns in the format aabbcc. We divide by 100 to truncate
+  cc since we don't care about the PATCH field of semantic versioning
+  */
+  int firmwareBuildNumberTrunc = firmwareBuildNumber / 100;
 
-  velocity_filtered_ = measured_vel;
+  velocity_filtered_ = filter(measured_vel, dt, firmwareBuildNumberTrunc);
   //If rover is E-Stopped, respond with NEUTRAL comman
   if (e_stop_on)
   {
@@ -273,30 +272,37 @@ int OdomControl::deadbandOffset(int motor_speed, int deadband_offset)
   }
 }
 
-double OdomControl::filter(double velocity, double dt)
+double OdomControl::filter(double velocity, double dt, int firmwareBuildNumber)
 {
   static double time = 0;
-  float change_in_velocity = 0;
 
   // Check for impossible acceleration, if it is impossible, ignore the measurement.
   float accel = (velocity - velocity_filtered_history_[0]) / dt;
   velocity_history_.insert(velocity_history_.begin(), velocity);
   velocity_history_.pop_back();
-
-  if (accel > MAX_ACCEL_CUTOFF_)
-  {
-    change_in_velocity = 0.5*dt*MAX_ACCEL_CUTOFF_;
-    velocity = velocity_filtered_history_[0] + change_in_velocity;
+  
+  if(firmwareBuildNumber == BUILD_NUMBER_WITH_GOOD_RPM_DATA){
+    velocity_filtered_ = 0.9 * velocity + 0.1 * velocity_filtered_history_[0];   
+    
   }
-  else if (accel < -MAX_ACCEL_CUTOFF_)
-  {
-    change_in_velocity = -0.5*dt*MAX_ACCEL_CUTOFF_;
-    velocity = velocity_filtered_history_[0] + change_in_velocity;
+  else{
+    float change_in_velocity = 0;
+
+    if (accel > MAX_ACCEL_CUTOFF_)
+    {
+      change_in_velocity = 0.5*dt*MAX_ACCEL_CUTOFF_;
+      velocity = velocity_filtered_history_[0] + change_in_velocity;
+    }
+    else if (accel < -MAX_ACCEL_CUTOFF_)
+    {
+      change_in_velocity = -0.5*dt*MAX_ACCEL_CUTOFF_;
+      velocity = velocity_filtered_history_[0] + change_in_velocity;
+    }
+
+    velocity_filtered_ = 0.1 * velocity + 0.25 * velocity_filtered_history_[0] + 0.30 * velocity_filtered_history_[1] + 0.25 * velocity_filtered_history_[2] + 0.1 * velocity_filtered_history_[3];
+
   }
 
-  // Hanning low pass filter filter
-  // velocity_filtered_ = 0.25 * velocity + 0.5 * velocity_filtered_history_[0] + 0.25 * velocity_filtered_history_[1];
-  velocity_filtered_ = 0.1 * velocity + 0.25 * velocity_filtered_history_[0] + 0.30 * velocity_filtered_history_[1] + 0.25 * velocity_filtered_history_[2] + 0.1 * velocity_filtered_history_[3];
   velocity_filtered_history_.insert(velocity_filtered_history_.begin(), velocity_filtered_);
   velocity_filtered_history_.pop_back();
 
