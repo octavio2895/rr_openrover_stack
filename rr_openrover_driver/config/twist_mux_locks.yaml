@@ -16,8 +16,13 @@ locks:
   # Same priority as keyboard control, so it'll not block it.
   priority: 90
 -
-  name    : joystick
-  topic   : joy_priority
+  name    : local_joystick
+  topic   : local_joystick_priority
+  timeout : 0.0
+  priority: 100
+-
+  name    : remote_joystick
+  topic   : remote_joystick_priority
   timeout : 0.0
   priority: 100
 

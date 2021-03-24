@@ -17,8 +17,13 @@ topics:
   timeout : 0.5
   priority: 90
 -
-  name    : joystick
-  topic   : /managed/joy
+  name    : remote_joystick
+  topic   : /managed/remote_joy
+  timeout : 0.5
+  priority: 90
+
+  name    : local_joystick
+  topic   : /managed/local_joy
   timeout : 0.5
   priority: 100
 -

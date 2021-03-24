@@ -25,12 +25,12 @@
     </node>
 
     <!-- Xbox 360 Controller Button Mapping -->
-    <node pkg="rr_control_input_manager" type="xbox_mapper.py" name="rr_xbox_mapper_node" output="screen" >
-        <remap from="joy" to="/joystick" />
-	<remap from="/joystick/a_button" to="/compressor_pwr_cmd" />
-        <remap from="/joystick/b_button" to="/arm_start_stop" />
-	<remap from="/joystick/y_button" to="/home_axis" />
-	<remap from="/joystick/x_button" to="/spray_valve_open_close"/>
+    <node pkg="rr_control_input_manager" type="xbox_mapper.py" name="rr_xbox_mapper_local_node" output="screen" >
+        <remap from="/joystick" to="/joystick_local" />
+	<remap from="/joystick_local/a_button" to="/compressor_pwr_cmd" />
+        <remap from="/joystick_local/b_button" to="/arm_start_stop" />
+	<remap from="/joystick_local/y_button" to="/home_axis" />
+	<remap from="/joystick_local/x_button" to="/spray_valve_open_close"/>
         <param name="max_vel_fwd" value="0.4" />
         <param name="a_button_toggle_once" value="true" />
         <param name="a_button_toggle" value="false" />
@@ -56,10 +56,17 @@
     </node>
 
     <!-- Control input manager -->
-    <node pkg="rr_control_input_manager" type="control_input_manager.py" name="rr_control_input_manager_node" output="log" >
+    <node pkg="rr_control_input_manager" type="control_input_manager.py" name="rr_control_input_manager_local_node" output="log" >
         <param name="driver" value="xboxdrv"/>
 	<param name="wired_or_wireless" value="wired"/>
+	<remap from="/managed/joy" to="/managed/local_joy"/>
         <rosparam file="$(find rr_control_input_manager)/config/input_topics.yaml" command="load"/>
+    </node>
+
+    <node pkg="joy" type="joy_node" name="joy_local_node" output="screen" respawn="true" >
+        <param name="autorepeat_rate" value="10" />
+        <param name="dev" value="/dev/input/jsX" />
+        <remap from="/joy" to="/joystick_local" />
     </node>
 
 </launch>
