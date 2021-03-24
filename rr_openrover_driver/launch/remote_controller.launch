@@ -1,11 +1,14 @@
+<?xml version="1.0"?>
 <launch>
+
 <!-- Xbox 360 Controller Button Mapping -->
-    <node pkg="rr_control_input_manager" type="xbox_mapper.py" name="rr_xbox_mapper_node_remote" output="screen" >
-        <remap from="joy" to="/joystick" />
+    <node pkg="rr_control_input_manager" type="xbox_mapper.py" name="rr_xbox_mapper_remote_node" output="screen" >
+	<remap from="/joystick" to="/remote_joystick" />
         <remap from="/joystick/a_button" to="/soft_estop/enable" />
         <remap from="/joystick/b_button" to="/soft_estop/reset" />
         <remap from="/joystick/y_button" to="/joy_priority" />
         <remap from="/joystick/x_button" to="/pause_navigation"/>
+	<remap from="/cmd_vel/joystick" to="/cmd_vel/remote_joystick"/>
         <param name="max_vel_fwd" value="0.4" />
         <param name="max_vel_turn" value="7.0" />
         <param name="adjustable_throttle" value="True" />
@@ -16,17 +19,19 @@
     </node>
 
     <!-- Control input manager -->
-    <node pkg="rr_control_input_manager" type="control_input_manager.py" name="rr_control_input_manager_node_remote" output="log" >
+    <node pkg="rr_control_input_manager" type="control_input_manager.py" name="rr_control_input_manager_remote_node" output="log" >
         <param name="driver" value="xboxdrv"/>
+	<remap from="/cmd_vel/joystick" to="/cmd_vel/remote_joystick"/>
         <param name="wired_or_wireless" value="wireless"/>
+	<remap from="/managed/joy" to="/managed/remote_joy" />
         <rosparam file="$(find rr_control_input_manager)/config/input_topics.yaml" command="load"/>
     </node>
 
         <!-- Xbox controller driver -->
-    <node pkg="joy" type="joy_node" name="joy_node_remote" output="screen" respawn="true" >
+    <node pkg="joy" type="joy_node" name="joy_remote_node" output="screen" respawn="true" >
         <param name="autorepeat_rate" value="10" />
         <param name="dev" value="/dev/input/jsX" />
-        <remap from="/joy" to="/joystick" />
+        <remap from="/joy" to="/remote_joystick" />
     </node>   
 
 </launch>
