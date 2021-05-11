@@ -11,14 +11,12 @@
         <param name="enable_timeout" type="bool" value="true"/>
         <param name="timeout" type="double" value="0.3"/>
         <param name="closed_loop_control_on" type="bool" value="true" />
-        <!--<param name="closed_loop_control_on" type="bool" value="true" />--><!-- Requires fast_data_rate >= 60 -->
         <param name="total_weight" type="double" value="40.0"/>
         <param name="traction_factor" value="0.450"/>
         <param name="odom_covariance_0" value="0.01"/>
         <param name="odom_covariance_35" value="0.03"/>
-
-        <param name="Kp" value="10"/>
-        <param name="Ki" value="90"/>
+        <param name="Kp" value="30"/>
+        <param name="Ki" value="20"/>
         <param name="fast_data_rate" value="60.0"/>
         <param name="medium_data_rate" value="2.0"/>
         <param name="slow_data_rate" value="1.0"/>
@@ -27,10 +25,8 @@
     <!-- Xbox 360 Controller Button Mapping -->
     <node pkg="rr_control_input_manager" type="xbox_mapper.py" name="rr_xbox_mapper_local_node" output="screen" >
         <remap from="/joystick" to="/joystick_local" />
-	<remap from="/joystick_local/a_button" to="/compressor_pwr_cmd" />
-        <remap from="/joystick_local/b_button" to="/arm_start_stop" />
-	<remap from="/joystick_local/y_button" to="/home_axis" />
-	<remap from="/joystick_local/x_button" to="/spray_valve_open_close"/>
+	<remap from="/joystick/x_button" to="/spray_valve_open_close"/>
+	<remap from="/cmd_vel/joystick" to="/cmd_vel/local_joystick"/>
         <param name="max_vel_fwd" value="0.4" />
         <param name="a_button_toggle_once" value="true" />
         <param name="a_button_toggle" value="false" />
@@ -50,13 +46,13 @@
     <!--  Twist Mux  -->
     <node pkg="twist_mux" type="twist_mux" name="twist_mux" output="screen">
         <remap from="cmd_vel_out" to="/cmd_vel/managed"/>
-
         <rosparam file="$(arg config_locks)"  command="load"/>
         <rosparam file="$(arg config_topics)" command="load"/>
     </node>
 
     <!-- Control input manager -->
     <node pkg="rr_control_input_manager" type="control_input_manager.py" name="rr_control_input_manager_local_node" output="log" >
+	<remap from="/cmd_vel/joystick" to="/cmd_vel/local_joystick"/>
         <param name="driver" value="xboxdrv"/>
 	<param name="wired_or_wireless" value="wired"/>
 	<remap from="/managed/joy" to="/managed/local_joy"/>
