@@ -383,7 +383,7 @@ def joy_cb(Joy):
     cmd.header.seq = seq
     cmd.header.stamp = rospy.Time.now()
     cmd.twist.linear.x = drive_cmd
-    cmd.twist.angular.y = flipper_cmd
+    cmd.twist.angular.y = 0#flipper_cmd
     cmd.twist.angular.z = turn_cmd
     pub.publish(cmd)
     seq += 1
